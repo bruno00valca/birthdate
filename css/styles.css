@@ -1,0 +1,423 @@
+/* =================================================================
+   Felicitación de cumpleaños · estilo "Nyhavn minimalista"
+   Paleta colorida (casas de Nyhavn) sobre un lienzo blanco y limpio.
+   Mobile-first + media queries para tablet/desktop.
+================================================================= */
+
+:root {
+  /* Acentos inspirados en las casas de Nyhavn */
+  --nyhavn-red:    #d8402f;
+  --nyhavn-mustard:#f0a92b;
+  --nyhavn-blue:   #2c6e9b;
+  --nyhavn-green:  #3e7c5a;
+
+  /* Lienzo minimalista */
+  --bg:        #fbf9f5;   /* blanco hueso cálido */
+  --surface:   #ffffff;
+  --ink:       #22262b;   /* gris carbón */
+  --ink-soft:  #5b636c;
+  --line:      #ece7de;
+
+  --accent: var(--nyhavn-blue); /* acento por defecto (se sobreescribe) */
+
+  --radius: 18px;
+  --shadow-sm: 0 4px 14px rgba(34, 38, 43, .06);
+  --shadow-md: 0 14px 40px rgba(34, 38, 43, .10);
+
+  --font-body: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
+
+  --maxw: 1080px;
+}
+
+/* ----------------------------- Base ----------------------------- */
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  color: var(--ink);
+  background: var(--bg);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+h1, h2, h3 { line-height: 1.15; margin: 0; }
+p { margin: 0; }
+img { display: block; max-width: 100%; height: auto; }
+
+.btn {
+  display: inline-block;
+  margin-top: 1.25rem;
+  padding: .85rem 1.7rem;
+  background: var(--nyhavn-blue);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 600;
+  border-radius: 999px;
+  box-shadow: var(--shadow-sm);
+  transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
+}
+.btn:hover, .btn:focus-visible { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+
+/* Encabezados de sección */
+.section__eyebrow {
+  text-transform: uppercase;
+  letter-spacing: .18em;
+  font-size: .78rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+.section__title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.8rem, 5vw, 2.8rem);
+  margin: .35rem 0;
+}
+.section__intro { color: var(--ink-soft); max-width: 34rem; margin: .5rem auto 0; }
+.section__head { text-align: center; padding: 0 1.25rem; margin-bottom: 2.5rem; }
+
+/* ============================================================= */
+/* 1) HERO                                                       */
+/* ============================================================= */
+.hero {
+  position: relative;
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: 3rem 1.25rem;
+  overflow: hidden;
+  background:
+    radial-gradient(1200px 600px at 50% -10%, #fff 0%, var(--bg) 60%),
+    linear-gradient(180deg, #fff 0%, var(--bg) 100%);
+}
+/* Puntos de colores decorativos, muy sutiles (confeti "estático") */
+.hero__decor {
+  position: absolute; inset: 0;
+  background-image:
+    radial-gradient(circle, var(--nyhavn-red) 0 6px, transparent 7px),
+    radial-gradient(circle, var(--nyhavn-mustard) 0 5px, transparent 6px),
+    radial-gradient(circle, var(--nyhavn-green) 0 5px, transparent 6px),
+    radial-gradient(circle, var(--nyhavn-blue) 0 6px, transparent 7px);
+  background-repeat: no-repeat;
+  background-position: 10% 18%, 85% 12%, 15% 82%, 88% 78%;
+  opacity: .5;
+  pointer-events: none;
+}
+
+.hero__inner { position: relative; max-width: 40rem; }
+.hero__eyebrow {
+  text-transform: uppercase;
+  letter-spacing: .2em;
+  font-size: .78rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+  margin-bottom: .75rem;
+}
+.hero__title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(2.2rem, 8vw, 4rem);
+}
+.hero__name {
+  color: var(--nyhavn-red);
+}
+.hero__dedication {
+  color: var(--ink-soft);
+  margin: 1.25rem auto 0;
+  max-width: 32rem;
+  font-size: 1.05rem;
+}
+
+/* --------------------------- El regalo -------------------------- */
+.gift {
+  display: inline-block;
+  margin: 2.5rem 0 .75rem;
+  padding: 1rem;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: var(--radius);
+}
+.gift:focus-visible { outline: 3px solid var(--nyhavn-blue); outline-offset: 4px; }
+
+.gift__box {
+  position: relative;
+  display: block;
+  width: 132px;
+  height: 108px;
+  margin: 24px auto 0;
+  background: linear-gradient(180deg, #e8503f 0%, var(--nyhavn-red) 100%);
+  border-radius: 8px;
+  box-shadow: var(--shadow-md);
+  transform-origin: center bottom;
+  animation: giftIdle 2.4s ease-in-out infinite;
+}
+/* Tapa */
+.gift__lid {
+  position: absolute;
+  left: -10px; right: -10px; top: -22px;
+  height: 30px;
+  background: linear-gradient(180deg, #ef5a48 0%, #d8402f 100%);
+  border-radius: 7px;
+  box-shadow: 0 4px 10px rgba(0,0,0,.12);
+  transform-origin: center bottom;
+  transition: transform .5s cubic-bezier(.34,1.56,.64,1), opacity .5s ease;
+  z-index: 3;
+}
+/* Cintas (mostaza) */
+.gift__ribbon-v {
+  position: absolute; top: 0; bottom: 0; left: 50%;
+  width: 22px; margin-left: -11px;
+  background: var(--nyhavn-mustard);
+  z-index: 2;
+}
+.gift__ribbon-h {
+  position: absolute; left: -10px; right: -10px; top: -22px;
+  height: 30px;
+  background: transparent;
+  z-index: 4;
+}
+.gift__ribbon-h::before {
+  content: ""; position: absolute; left: 50%; top: 0; bottom: 0;
+  width: 22px; margin-left: -11px; background: var(--nyhavn-mustard);
+}
+/* Lazo */
+.gift__bow {
+  position: absolute; left: 50%; top: -34px;
+  width: 20px; height: 20px; margin-left: -10px;
+  background: var(--nyhavn-mustard);
+  border-radius: 50%;
+  z-index: 5;
+  transition: transform .5s ease, opacity .5s ease;
+}
+.gift__bow::before, .gift__bow::after {
+  content: ""; position: absolute; top: -8px;
+  width: 22px; height: 26px; border-radius: 60% 60% 50% 50%;
+  background: var(--nyhavn-mustard);
+}
+.gift__bow::before { left: -16px; transform: rotate(-28deg); }
+.gift__bow::after  { right: -16px; transform: rotate(28deg); }
+
+/* Estado abierto */
+.gift.is-open .gift__box { animation: none; }
+.gift.is-open .gift__lid {
+  transform: translateY(-42px) rotate(-14deg);
+}
+.gift.is-open .gift__bow {
+  transform: translateY(-46px) rotate(18deg);
+  opacity: 0;
+}
+
+.gift__hint {
+  color: var(--ink-soft);
+  font-size: .92rem;
+  transition: opacity .3s ease;
+}
+
+/* --------------------------- Reveal ----------------------------- */
+.reveal { margin-top: 1.5rem; }
+.reveal[hidden] { display: none; }
+.reveal.is-shown { animation: popIn .6s cubic-bezier(.34,1.56,.64,1) both; }
+.reveal__plane { font-size: 2.5rem; }
+.reveal__title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.6rem, 6vw, 2.6rem);
+  color: var(--nyhavn-blue);
+  margin-top: .25rem;
+}
+.reveal__dates {
+  font-weight: 600;
+  color: var(--ink);
+  margin-top: .5rem;
+  letter-spacing: .01em;
+}
+
+/* ============================================================= */
+/* 2) VIAJE (banner + tarjetas)                                  */
+/* ============================================================= */
+.trip { padding: clamp(3rem, 8vw, 6rem) 1.25rem; max-width: var(--maxw); margin: 0 auto; }
+
+.trip__banner {
+  position: relative;
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  margin-bottom: clamp(2rem, 6vw, 3.5rem);
+}
+.trip__banner img {
+  width: 100%;
+  height: clamp(220px, 42vw, 420px);
+  object-fit: cover;
+}
+.trip__banner-overlay {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; justify-content: flex-end;
+  padding: clamp(1.25rem, 4vw, 2.25rem);
+  color: #fff;
+  background: linear-gradient(180deg, rgba(0,0,0,0) 30%, rgba(0,0,0,.55) 100%);
+}
+.trip__banner-overlay .section__eyebrow { color: #ffd9a3; }
+.trip__banner-overlay .section__title { color: #fff; }
+
+.cards {
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: 1fr;
+}
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-top: 4px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 1.75rem 1.5rem;
+  box-shadow: var(--shadow-sm);
+  transition: transform .25s ease, box-shadow .25s ease;
+}
+.card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+.card__icon { font-size: 2rem; }
+.card__title { font-family: var(--font-display); font-size: 1.3rem; margin: .5rem 0 .35rem; }
+.card__lead { font-weight: 600; font-size: 1.1rem; }
+.card__text { color: var(--ink-soft); }
+.card__badge {
+  display: inline-block;
+  margin-top: 1rem;
+  padding: .35rem .85rem;
+  background: color-mix(in srgb, var(--accent) 12%, #fff);
+  color: var(--accent);
+  border-radius: 999px;
+  font-size: .85rem;
+  font-weight: 600;
+}
+.card__list { margin: .5rem 0 0; display: grid; grid-template-columns: auto 1fr; gap: .35rem .85rem; }
+.card__list dt { color: var(--ink-soft); font-size: .85rem; }
+.card__list dd { margin: 0; font-weight: 500; }
+
+/* ============================================================= */
+/* 3) ITINERARIO (timeline vertical)                             */
+/* ============================================================= */
+.itinerary { padding: clamp(3rem, 8vw, 6rem) 1.25rem; max-width: var(--maxw); margin: 0 auto; }
+
+.timeline {
+  list-style: none;
+  position: relative;
+  margin: 0; padding: 0;
+}
+/* Línea vertical */
+.timeline::before {
+  content: "";
+  position: absolute;
+  left: 18px; top: 6px; bottom: 6px;
+  width: 3px;
+  background: linear-gradient(180deg,
+    var(--nyhavn-red), var(--nyhavn-mustard),
+    var(--nyhavn-green), var(--nyhavn-blue));
+  border-radius: 3px;
+}
+
+.tl { position: relative; padding: 0 0 2rem 52px; }
+.tl:last-child { padding-bottom: 0; }
+
+/* Colores por día */
+.tl:nth-child(1) { --accent: var(--nyhavn-red); }
+.tl:nth-child(2) { --accent: var(--nyhavn-mustard); }
+.tl:nth-child(3) { --accent: var(--nyhavn-green); }
+.tl:nth-child(4) { --accent: var(--nyhavn-blue); }
+
+.tl__marker {
+  position: absolute;
+  left: 10px; top: 4px;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 4px solid var(--bg);
+  box-shadow: 0 0 0 2px var(--accent);
+}
+.tl__content {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.35rem;
+  box-shadow: var(--shadow-sm);
+}
+.tl__day {
+  font-size: .8rem; font-weight: 600; text-transform: uppercase;
+  letter-spacing: .1em; color: var(--accent);
+}
+.tl__title { font-family: var(--font-display); font-size: 1.35rem; margin: .2rem 0 .85rem; }
+.tl__img {
+  width: 100%;
+  height: clamp(160px, 40vw, 240px);
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: .9rem;
+}
+.tl__acts { margin: 0; padding-left: 1.1rem; color: var(--ink-soft); }
+.tl__acts li { margin-bottom: .35rem; }
+
+/* ============================================================= */
+/* 4) FOOTER                                                     */
+/* ============================================================= */
+.footer {
+  text-align: center;
+  padding: 3rem 1.25rem 3.5rem;
+  border-top: 1px solid var(--line);
+  background: #fff;
+}
+.footer__msg { font-family: var(--font-display); font-size: 1.2rem; }
+.footer__sign { color: var(--ink-soft); margin-top: .4rem; font-size: .9rem; }
+
+/* ============================================================= */
+/* Animaciones                                                   */
+/* ============================================================= */
+@keyframes giftIdle {
+  0%, 100% { transform: translateY(0) rotate(0); }
+  25%      { transform: translateY(-6px) rotate(-2deg); }
+  75%      { transform: translateY(-6px) rotate(2deg); }
+}
+@keyframes popIn {
+  from { opacity: 0; transform: scale(.85) translateY(12px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* Aparición al hacer scroll */
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity .7s ease, transform .7s ease;
+}
+.reveal-on-scroll.visible { opacity: 1; transform: none; }
+
+/* ============================================================= */
+/* Responsive: tablet / desktop                                  */
+/* ============================================================= */
+@media (min-width: 720px) {
+  .cards { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (min-width: 860px) {
+  /* Timeline alterna izquierda/derecha */
+  .timeline::before { left: 50%; transform: translateX(-50%); }
+  .tl { width: 50%; padding: 0 0 3rem 0; }
+  .tl:nth-child(odd) { left: 0; padding-right: 42px; }
+  .tl:nth-child(even) { left: 50%; padding-left: 42px; }
+  .tl:nth-child(odd) .tl__content { border-left: none; border-right: 4px solid var(--accent); }
+  .tl__marker { top: 6px; }
+  .tl:nth-child(odd) .tl__marker { left: auto; right: -10px; }
+  .tl:nth-child(even) .tl__marker { left: -10px; }
+}
+
+/* Accesibilidad: respeta a quien prefiere menos movimiento */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .gift__box { animation: none; }
+  .reveal-on-scroll { opacity: 1; transform: none; transition: none; }
+  .reveal.is-shown { animation: none; }
+  * { transition: none !important; }
+}

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- ✏️ EDITAR: título de la pestaña del navegador -->
+  <title>¡Feliz cumpleaños! 🎁</title>
+  <meta name="description" content="Una felicitación de cumpleaños con una sorpresa muy especial." />
+  <meta name="theme-color" content="#2c6e9b" />
+
+  <!-- Tipografía (con fallback a fuentes del sistema si no hay internet) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="css/styles.css" />
+
+  <!-- Si el navegador no ejecuta JS, mostramos todo el contenido igualmente -->
+  <noscript>
+    <style>
+      .reveal-on-scroll { opacity: 1 !important; transform: none !important; }
+      #reveal { display: block !important; }
+      #giftHint { display: none; }
+    </style>
+  </noscript>
+</head>
+<body>
+
+  <!-- ============================================================= -->
+  <!-- 1) HERO + REGALO                                              -->
+  <!-- ============================================================= -->
+  <header class="hero" id="inicio">
+    <div class="hero__decor" aria-hidden="true"></div>
+
+    <div class="hero__inner">
+      <!-- ✏️ EDITAR: pequeño texto superior (opcional) -->
+      <p class="hero__eyebrow">Hoy es un día muy especial</p>
+
+      <!-- ✏️ EDITAR: sustituye [NOMBRE] por el nombre o apodo -->
+      <h1 class="hero__title">¡Feliz cumpleaños,<br /><span class="hero__name">[NOMBRE]</span>!</h1>
+
+      <!-- ✏️ EDITAR: dedicatoria. Escribe aquí tu mensaje personal. -->
+      <p class="hero__dedication">
+        Este año quería regalarte algo distinto, algo para vivir juntos y
+        recordar siempre. Toca el regalo… te espera una sorpresa. 🎁
+      </p>
+
+      <!-- Cajita de regalo (se abre al pulsar). Es un botón accesible. -->
+      <button class="gift" id="gift" type="button"
+              aria-expanded="false" aria-controls="reveal"
+              aria-label="Abrir el regalo">
+        <span class="gift__box" aria-hidden="true">
+          <span class="gift__lid"></span>
+          <span class="gift__ribbon-v"></span>
+          <span class="gift__ribbon-h"></span>
+          <span class="gift__bow"></span>
+        </span>
+      </button>
+      <p class="gift__hint" id="giftHint">Toca el regalo para abrirlo</p>
+
+      <!-- Sorpresa revelada (oculta hasta abrir el regalo) -->
+      <div class="reveal" id="reveal" hidden>
+        <p class="reveal__plane" aria-hidden="true">✈️</p>
+        <h2 class="reveal__title">¡Nos vamos a Copenhague!</h2>
+        <p class="reveal__dates">30 ago – 2 sep · 4 días / 3 noches</p>
+        <a class="btn" href="#viaje">Ver el viaje ↓</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============================================================= -->
+  <!-- 2) TARJETAS DEL VIAJE                                         -->
+  <!-- ============================================================= -->
+  <section class="trip" id="viaje">
+    <!-- Banner con foto de la ciudad -->
+    <div class="trip__banner reveal-on-scroll">
+      <img src="assets/img/nyhavn.jpg" alt="Nyhavn, el colorido puerto de Copenhague" loading="lazy" />
+      <div class="trip__banner-overlay">
+        <p class="section__eyebrow">El regalo</p>
+        <h2 class="section__title">Un viaje a Copenhague 🇩🇰</h2>
+      </div>
+    </div>
+
+    <div class="cards">
+      <!-- Tarjeta: Fechas y duración -->
+      <article class="card reveal-on-scroll" style="--accent: var(--nyhavn-red)">
+        <span class="card__icon" aria-hidden="true">📅</span>
+        <h3 class="card__title">Fechas</h3>
+        <p class="card__lead">30 ago – 2 sep 2026</p>
+        <p class="card__text">4 días · 3 noches</p>
+        <p class="card__badge" id="countdown">Calculando cuánto falta…</p>
+      </article>
+
+      <!-- Tarjeta: Vuelos -->
+      <article class="card reveal-on-scroll" style="--accent: var(--nyhavn-blue)">
+        <span class="card__icon" aria-hidden="true">✈️</span>
+        <h3 class="card__title">Vuelos</h3>
+        <!-- ✏️ EDITAR: datos reales de los vuelos -->
+        <dl class="card__list">
+          <dt>Aerolínea</dt><dd>✏️ Aerolínea</dd>
+          <dt>Ida</dt><dd>✏️ 30 ago · 00:00 · MAD → CPH</dd>
+          <dt>Vuelta</dt><dd>✏️ 2 sep · 00:00 · CPH → MAD</dd>
+        </dl>
+      </article>
+
+      <!-- Tarjeta: Alojamiento -->
+      <article class="card reveal-on-scroll" style="--accent: var(--nyhavn-green)">
+        <span class="card__icon" aria-hidden="true">🏨</span>
+        <h3 class="card__title">Alojamiento</h3>
+        <!-- ✏️ EDITAR: datos reales del alojamiento -->
+        <dl class="card__list">
+          <dt>Hotel</dt><dd>✏️ Nombre del hotel</dd>
+          <dt>Zona</dt><dd>✏️ Barrio / zona</dd>
+          <dt>Noches</dt><dd>3 noches</dd>
+        </dl>
+      </article>
+    </div>
+  </section>
+
+  <!-- ============================================================= -->
+  <!-- 3) ITINERARIO (timeline vertical)                             -->
+  <!-- ============================================================= -->
+  <section class="itinerary" id="itinerario">
+    <div class="section__head reveal-on-scroll">
+      <p class="section__eyebrow">Día a día</p>
+      <h2 class="section__title">El plan del viaje</h2>
+      <p class="section__intro">
+        Una propuesta para aprovechar Copenhague al máximo. ✏️ Ajusta las
+        actividades a vuestro gusto.
+      </p>
+    </div>
+
+    <ol class="timeline">
+      <!-- Día 1 -->
+      <li class="tl reveal-on-scroll">
+        <div class="tl__marker" aria-hidden="true"></div>
+        <div class="tl__content">
+          <p class="tl__day">Día 1 · Sábado 30 ago</p>
+          <h3 class="tl__title">Llegada y Nyhavn</h3>
+          <img class="tl__img" src="assets/img/nyhavn.jpg" alt="Casas de colores de Nyhavn" loading="lazy" />
+          <ul class="tl__acts">
+            <li>Llegada al aeropuerto y check-in en el hotel.</li>
+            <li>Primer paseo por Nyhavn, el puerto de las casas de colores.</li>
+            <li>Cena tranquila junto al canal. 🍽️</li>
+          </ul>
+        </div>
+      </li>
+
+      <!-- Día 2 -->
+      <li class="tl reveal-on-scroll">
+        <div class="tl__marker" aria-hidden="true"></div>
+        <div class="tl__content">
+          <p class="tl__day">Día 2 · Domingo 31 ago</p>
+          <h3 class="tl__title">Tivoli y centro histórico</h3>
+          <img class="tl__img" src="assets/img/tivoli.jpg" alt="Jardines de Tivoli en Copenhague" loading="lazy" />
+          <ul class="tl__acts">
+            <li>Jardines de Tivoli, uno de los parques más antiguos del mundo. 🎡</li>
+            <li>Plaza del Ayuntamiento y la calle comercial Strøget.</li>
+            <li>Subida a la Torre Redonda (Rundetårn) por sus vistas.</li>
+          </ul>
+        </div>
+      </li>
+
+      <!-- Día 3 -->
+      <li class="tl reveal-on-scroll">
+        <div class="tl__marker" aria-hidden="true"></div>
+        <div class="tl__content">
+          <p class="tl__day">Día 3 · Lunes 1 sep</p>
+          <h3 class="tl__title">La Sirenita y los canales</h3>
+          <img class="tl__img" src="assets/img/sirenita.jpg" alt="Estatua de La Sirenita en Copenhague" loading="lazy" />
+          <ul class="tl__acts">
+            <li>La Sirenita y el Palacio de Amalienborg.</li>
+            <li>Paseo por la fortaleza de Kastellet y el barrio de Christiania.</li>
+            <li>Tour en barco por los canales de la ciudad. 🚤</li>
+          </ul>
+        </div>
+      </li>
+
+      <!-- Día 4 -->
+      <li class="tl reveal-on-scroll">
+        <div class="tl__marker" aria-hidden="true"></div>
+        <div class="tl__content">
+          <p class="tl__day">Día 4 · Martes 2 sep</p>
+          <h3 class="tl__title">Rosenborg y vuelta a casa</h3>
+          <img class="tl__img" src="assets/img/rosenborg.jpg" alt="Castillo de Rosenborg en Copenhague" loading="lazy" />
+          <ul class="tl__acts">
+            <li>Castillo de Rosenborg y los Jardines del Rey.</li>
+            <li>Mercado gastronómico Torvehallerne y últimas compras. 🛍️</li>
+            <li>Salida hacia el aeropuerto. ✈️</li>
+          </ul>
+        </div>
+      </li>
+    </ol>
+  </section>
+
+  <!-- ============================================================= -->
+  <!-- 4) FOOTER                                                     -->
+  <!-- ============================================================= -->
+  <footer class="footer">
+    <!-- ✏️ EDITAR: mensaje de cierre y firma -->
+    <p class="footer__msg">¡Feliz cumpleaños! Nos vemos en Copenhague. 🎉</p>
+    <p class="footer__sign">Hecho con ❤️</p>
+  </footer>
+
+  <!-- Confeti (local, funciona sin internet). Fuente: canvas-confetti -->
+  <script src="js/confetti.browser.min.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
