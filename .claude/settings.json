@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(timeout 12 curl -sI https://raw.githubusercontent.com)",
+      "Bash(echo \"EXIT:$?\")",
+      "Bash(python3 -c \"import shapely, geopandas\")",
+      "Bash(timeout 120 curl -sL -o ne50.geojson https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_50m_admin_0_countries.geojson)",
+      "Bash(python3 mkmap.py)",
+      "Bash(python3 -c ' *)",
+      "Bash(python3 -c \"import cairosvg; print\\('cairosvg ok'\\)\")",
+      "Bash(python3 -c \"import PIL; print\\('PIL ok'\\)\")",
+      "Read(//home/bvalcarcel/.cache/**)",
+      "Bash(python3 preview.py)",
+      "Bash(node -e \"global.window={};require\\('/home/bvalcarcel/birthdate/js/europa-map.js'\\);console.log\\('OK paises:',window.EUROPA_MAP.countries.length,'viewBox:',window.EUROPA_MAP.width,window.EUROPA_MAP.height\\)\")",
+      "Bash(node --check js/main.js)",
+      "Bash(node --check js/europa-map.js)",
+      "Bash(python3 preview2.py)",
+      "Bash(sed 's/^OUT_W = 900/OUT_W = 540/; s|/tmp/frame_a.png|/tmp/small_a.png|; s|/tmp/frame_b.png|/tmp/small_b.png|; s|/tmp/frame_c.png|/tmp/small_c.png|' preview2.py)",
+      "Bash(python3 preview3.py)",
+      "Bash(python3 tools/generar-mapa.py /tmp/ne50.geojson)",
+      "Bash(python3 preview4.py)",
+      "Bash(node -e \"global.window={};require\\('./js/europa-map.js'\\);require\\('fs'\\).writeFileSync\\('/tmp/map.json',JSON.stringify\\(window.EUROPA_MAP\\)\\)\")",
+      "Bash(node -e ' *)"
+    ]
+  }
+}

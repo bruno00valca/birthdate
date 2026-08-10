@@ -245,25 +245,173 @@ img { display: block; max-width: 100%; height: auto; }
 
 .trip__banner {
   position: relative;
+  display: grid;
+  gap: clamp(1rem, 3vw, 1.75rem);
+  align-items: center;
+  padding: clamp(1.25rem, 4vw, 2.25rem);
+  border: 1px solid var(--line);
   border-radius: var(--radius);
-  overflow: hidden;
+  background: radial-gradient(120% 100% at 12% 0%, #fff 0%, #f3f8fc 55%, #e9f1f8 100%);
   box-shadow: var(--shadow-md);
+  overflow: hidden;
+  text-align: center;
   margin-bottom: clamp(2rem, 6vw, 3.5rem);
 }
-.trip__banner img {
+.trip__intro .section__eyebrow { color: var(--nyhavn-blue); }
+.trip__hint {
+  color: var(--ink-soft);
+  font-size: .95rem;
+  margin-top: .5rem;
+}
+
+/* Destino oculto hasta que el avión aterriza */
+.trip__dest { display: inline-block; }
+.trip__dest.is-secret > * { display: none; }
+.trip__dest.is-secret::before { content: "…"; color: var(--nyhavn-blue); letter-spacing: .1em; }
+.trip__dest.is-revealed { animation: popIn .55s cubic-bezier(.34,1.56,.64,1) both; }
+
+/* Bandera de Dinamarca (en SVG: los emoji de banderas no se ven en Windows) */
+.trip__flag {
+  display: inline-block;
+  width: 1.15em;
+  height: .87em;
+  margin-left: .3em;
+  vertical-align: -.02em;
+  border-radius: 2px;
+  box-shadow: 0 0 0 1px rgba(34, 38, 43, .15);
+}
+
+.trip__replay {
+  margin-top: 1rem;
+  padding: .5rem 1.1rem;
+  font: inherit;
+  font-size: .88rem;
+  font-weight: 600;
+  color: var(--nyhavn-blue);
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.trip__replay:hover:not(:disabled) { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.trip__replay:disabled { opacity: .5; cursor: default; }
+
+/* ------------------- Mapa del vuelo (animación) ------------------ */
+.flight { position: relative; margin: 0; }
+
+/* Foto de reserva: se oculta cuando el mapa está listo */
+.flight__fallback {
   width: 100%;
-  height: clamp(220px, 42vw, 420px);
+  height: clamp(200px, 38vw, 340px);
   object-fit: cover;
+  border-radius: 12px;
 }
-.trip__banner-overlay {
-  position: absolute; inset: 0;
-  display: flex; flex-direction: column; justify-content: flex-end;
-  padding: clamp(1.25rem, 4vw, 2.25rem);
-  color: #fff;
-  background: linear-gradient(180deg, rgba(0,0,0,0) 30%, rgba(0,0,0,.55) 100%);
+.flight.is-ready .flight__fallback { display: none; }
+
+.flight__map {
+  display: none;
+  position: relative;
+  width: 100%;
+  max-width: 540px;
+  margin: 0 auto;
+  aspect-ratio: 1000 / 930;
 }
-.trip__banner-overlay .section__eyebrow { color: #ffd9a3; }
-.trip__banner-overlay .section__title { color: #fff; }
+/* Reserva de altura para navegadores sin aspect-ratio */
+.flight__map::before { content: ""; display: block; padding-top: 93%; }
+.flight.is-ready .flight__map { display: block; }
+
+.flight__map .map {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Países */
+.map__land {
+  stroke: #fff;
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+}
+
+/* Estela: cada trazo se enciende al pasar el avión */
+.map__dash {
+  stroke: var(--nyhavn-red);
+  stroke-width: 4.5;
+  stroke-linecap: round;
+  opacity: 0;
+  transition: opacity .5s ease;
+}
+.map__dash.is-on { opacity: .92; }
+
+/* En pantallas pequeñas el mapa se dibuja mucho más pequeño: engordamos
+   los trazos para que la estela y las fronteras no desaparezcan. */
+@media (max-width: 520px) {
+  .map__land { stroke-width: 2.4; }
+  .map__dash { stroke-width: 7; }
+}
+
+/* Chinchetas de origen y destino */
+.map__dot {
+  fill: var(--nyhavn-red);
+  stroke: #fff;
+  stroke-width: 2.5;
+}
+.map__ring {
+  fill: none;
+  stroke: var(--nyhavn-red);
+  stroke-width: 3;
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+/* Destello en Madrid al despegar */
+.flight.is-flying .map__origin .map__ring { animation: pinTakeoff 1.4s ease-out 2; }
+
+/* Puntos del camino: se iluminan mientras el avión pasa por encima */
+.map__stop { opacity: 0; transition: opacity .5s ease; }
+.map__stop .map__dot { fill: var(--nyhavn-mustard); }
+.map__stop .map__ring { stroke: var(--nyhavn-mustard); }
+.map__stop.is-lit { opacity: 1; }
+.map__stop.is-lit .map__ring { animation: pinPulse 1.6s ease-out infinite; }
+
+/* El destino no aparece hasta que el avión aterriza */
+.map__target { opacity: 0; transition: opacity .4s ease; }
+.flight.is-landed .map__target { opacity: 1; }
+.flight.is-landed .map__target .map__ring { animation: pinPulse 1.8s ease-out infinite; }
+
+/* Avión */
+.map__plane {
+  fill: var(--ink);
+  stroke: rgba(255, 255, 255, .95);
+  stroke-width: 3;
+  paint-order: stroke fill;
+  opacity: 0;
+  transition: opacity .35s ease;
+}
+.flight.is-flying .map__plane, .flight.is-landed .map__plane { opacity: 1; }
+
+/* Etiquetas de ciudad (HTML, para que el texto no se deforme) */
+.flight__pin {
+  position: absolute;
+  transform: translate(-50%, -160%);
+  padding: .12rem .5rem;
+  background: #fff;
+  color: var(--ink);
+  font-size: .72rem;
+  font-weight: 600;
+  border-radius: 999px;
+  box-shadow: var(--shadow-sm);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .4s ease, transform .4s cubic-bezier(.34,1.56,.64,1);
+}
+.flight.is-ready .flight__pin--from { opacity: 1; }
+.flight__pin--to { transform: translate(-50%, -110%) scale(.75); }
+.flight.is-landed .flight__pin--to { opacity: 1; transform: translate(-50%, -160%) scale(1); }
 
 .cards {
   display: grid;
@@ -385,6 +533,16 @@ img { display: block; max-width: 100%; height: auto; }
   from { opacity: 0; transform: scale(.85) translateY(12px); }
   to   { opacity: 1; transform: scale(1) translateY(0); }
 }
+/* Latido de la chincheta del destino */
+@keyframes pinPulse {
+  0%   { opacity: .9; transform: scale(.5); }
+  100% { opacity: 0;  transform: scale(2.2); }
+}
+/* Despegue: pequeño destello en el aeropuerto de salida */
+@keyframes pinTakeoff {
+  0%   { opacity: .85; transform: scale(.5); }
+  100% { opacity: 0;   transform: scale(2); }
+}
 
 /* Aparición al hacer scroll */
 .reveal-on-scroll {
@@ -399,6 +557,16 @@ img { display: block; max-width: 100%; height: auto; }
 /* ============================================================= */
 @media (min-width: 720px) {
   .cards { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (min-width: 820px) {
+  /* Banner en dos columnas: texto a la izquierda, mapa a la derecha */
+  .trip__banner {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+    gap: clamp(1.5rem, 4vw, 2.5rem);
+    text-align: left;
+  }
+  .flight__pin { font-size: .78rem; }
 }
 
 @media (min-width: 860px) {
@@ -419,5 +587,10 @@ img { display: block; max-width: 100%; height: auto; }
   .gift__box { animation: none; }
   .reveal-on-scroll { opacity: 1; transform: none; transition: none; }
   .reveal.is-shown { animation: none; }
+  .trip__dest.is-revealed { animation: none; }
+  /* El mapa se muestra con la ruta ya dibujada, sin vuelo */
+  .flight.is-landed .map__target .map__ring,
+  .map__stop.is-lit .map__ring { animation: none; opacity: .5; }
+  .flight__pin--to { transform: translate(-50%, -160%) scale(1); }
   * { transition: none !important; }
 }

@@ -21,6 +21,8 @@
       .reveal-on-scroll { opacity: 1 !important; transform: none !important; }
       #reveal { display: block !important; }
       #giftHint { display: none; }
+      /* Sin JS no hay mapa animado: se ve la foto y sobra la pista */
+      #tripHint { display: none; }
     </style>
   </noscript>
 </head>
@@ -37,13 +39,13 @@
       <p class="hero__eyebrow">Hoy es un día muy especial</p>
 
       <!-- ✏️ EDITAR: sustituye [NOMBRE] por el nombre o apodo -->
-      <h1 class="hero__title">¡Feliz cumpleaños,<br /><span class="hero__name">[NOMBRE]</span>!</h1>
+      <h1 class="hero__title">¡¡Feliz cumpleaños,<br /><span class="hero__name"> SUNDRII</span>!!</h1>
 
       <!-- ✏️ EDITAR: dedicatoria. Escribe aquí tu mensaje personal. -->
       <p class="hero__dedication">
         Este año quería regalarte algo distinto, algo para vivir juntos y
         recordar siempre. Toca el regalo… te espera una sorpresa. 🎁
-      </p>
+      </p>  
 
       <!-- Cajita de regalo (se abre al pulsar). Es un botón accesible. -->
       <button class="gift" id="gift" type="button"
@@ -72,13 +74,33 @@
   <!-- 2) TARJETAS DEL VIAJE                                         -->
   <!-- ============================================================= -->
   <section class="trip" id="viaje">
-    <!-- Banner con foto de la ciudad -->
+    <!-- Banner: mapa de Europa con la animación del vuelo Madrid → ??? -->
     <div class="trip__banner reveal-on-scroll">
-      <img src="assets/img/nyhavn.jpg" alt="Nyhavn, el colorido puerto de Copenhague" loading="lazy" />
-      <div class="trip__banner-overlay">
+      <div class="trip__intro">
         <p class="section__eyebrow">El regalo</p>
-        <h2 class="section__title">Un viaje a Copenhague 🇩🇰</h2>
+        <!-- El destino se oculta con JS y se desvela al aterrizar el avión.
+             La bandera va en SVG: los emoji de banderas no se ven en Windows. -->
+        <h2 class="section__title">Un viaje a <span class="trip__dest" id="tripDest"><span
+              class="trip__dest-name">Copenhague</span><svg class="trip__flag" viewBox="0 0 37 28"
+              role="img" aria-label="bandera de Dinamarca"><rect width="37" height="28"
+              fill="#c8102e" /><path d="M0 12h37v4H0z" fill="#fff" /><path d="M12 0h4v28h-4z"
+              fill="#fff" /></svg></span></h2>
+        <p class="trip__hint" id="tripHint" aria-live="polite">Sigue al avión por el mapa… ✈️</p>
+        <button class="trip__replay" id="tripReplay" type="button" hidden>↻ Repetir el vuelo</button>
       </div>
+
+      <figure class="flight" id="flight">
+        <!-- Sin JS (o si algo falla) se ve la foto de siempre -->
+        <img class="flight__fallback" src="assets/img/nyhavn.jpg"
+             alt="Nyhavn, el colorido puerto de Copenhague" loading="lazy" />
+
+        <div class="flight__map" id="flightMap" role="img"
+             aria-label="Mapa de Europa con la ruta del vuelo de Madrid a Copenhague">
+          <!-- El SVG del mapa lo inserta js/main.js -->
+          <span class="flight__pin flight__pin--from" id="flightPinFrom">Madrid</span>
+          <span class="flight__pin flight__pin--to" id="flightPinTo">Copenhague</span>
+        </div>
+      </figure>
     </div>
 
     <div class="cards">
@@ -204,6 +226,8 @@
 
   <!-- Confeti (local, funciona sin internet). Fuente: canvas-confetti -->
   <script src="js/confetti.browser.min.js"></script>
+  <!-- Mapa de Europa (paths SVG) para la animación del vuelo -->
+  <script src="js/europa-map.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>
