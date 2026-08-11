@@ -20,6 +20,21 @@
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   // --------------------------------------------------------------
+  // 0) Todo lo que va debajo del mapa (tarjetas, itinerario y pie)
+  //    está escondido hasta que el avión aterriza. La clase la pone el
+  //    script del <head> (así no se ve ni un instante) y la quitamos
+  //    aquí: al aterrizar o si el vuelo no se puede animar.
+  // --------------------------------------------------------------
+  var belowShown = false;
+  window.FLIGHT_READY = true;   // avisa al script del <head>: ya mandamos nosotros
+
+  function showBelowFlight() {
+    if (belowShown) return;
+    belowShown = true;
+    document.documentElement.classList.remove("is-boarding");
+  }
+
+  // --------------------------------------------------------------
   // 1) Abrir el regalo
   // --------------------------------------------------------------
   function initGift() {
@@ -149,8 +164,9 @@
     var data = window.EUROPA_MAP;
     var fig = document.getElementById("flight");
     var host = document.getElementById("flightMap");
-    if (!data || !fig || !host) return;
-    if (!data.cities || !data.cities.MAD || !data.cities.CPH) return;
+    // Si no hay mapa que animar, no hay nada que esperar: se ve todo
+    if (!data || !fig || !host) return showBelowFlight();
+    if (!data.cities || !data.cities.MAD || !data.cities.CPH) return showBelowFlight();
 
     host.insertAdjacentHTML("afterbegin", buildMapSvg(data));
 
@@ -161,7 +177,7 @@
     // Sin soporte de SVG (o de su API de geometría) dejamos la foto de reserva
     if (!route || !trail || !plane || typeof route.getTotalLength !== "function") {
       if (svg) host.removeChild(svg);
-      return;
+      return showBelowFlight();
     }
 
     var stopEls = host.getElementsByClassName("map__stop");
@@ -289,6 +305,8 @@
       }
       if (hint) hint.textContent = HINT_LANDED;
       if (replay) { replay.hidden = false; replay.disabled = false; }
+      // Ya se puede ver el resto del viaje (una vez desvelado, se queda)
+      showBelowFlight();
       landingConfetti(host, data);
     }
 
@@ -337,6 +355,7 @@
       movePlane(length, 1);
       fig.classList.add("is-landed");
       if (hint) hint.textContent = HINT_STATIC;
+      showBelowFlight();
       return;
     }
 

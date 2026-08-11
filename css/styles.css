@@ -413,6 +413,15 @@ img { display: block; max-width: 100%; height: auto; }
 .flight__pin--to { transform: translate(-50%, -110%) scale(.75); }
 .flight.is-landed .flight__pin--to { opacity: 1; transform: translate(-50%, -160%) scale(1); }
 
+/* Mientras el avión vuela, no se ve nada de lo que hay debajo del mapa.
+   La clase la pone JS (nunca el HTML): sin JS, o si el mapa falla, la
+   página se ve completa desde el principio. */
+html.is-boarding .cards,
+html.is-boarding .itinerary,
+html.is-boarding .footer { display: none; }
+/* Sin tarjetas debajo, el hueco del banner sobra */
+html.is-boarding .trip__banner { margin-bottom: 0; }
+
 .cards {
   display: grid;
   gap: 1.25rem;

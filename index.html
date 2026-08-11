@@ -15,6 +15,19 @@
 
   <link rel="stylesheet" href="css/styles.css" />
 
+  <!-- Lo que hay debajo del mapa (tarjetas, itinerario y pie) empieza
+       oculto: lo desvela el avión al aterrizar, desde js/main.js. Se marca
+       aquí, antes del primer pintado, para que no se vea ni un instante. -->
+  <script>
+    document.documentElement.classList.add("is-boarding");
+    // Red de seguridad: si js/main.js no llega a ejecutarse, se ve todo
+    window.addEventListener("load", function () {
+      if (!window.FLIGHT_READY) {
+        document.documentElement.classList.remove("is-boarding");
+      }
+    });
+  </script>
+
   <!-- Si el navegador no ejecuta JS, mostramos todo el contenido igualmente -->
   <noscript>
     <style>
@@ -63,8 +76,7 @@
       <!-- Sorpresa revelada (oculta hasta abrir el regalo) -->
       <div class="reveal" id="reveal" hidden>
         <p class="reveal__plane" aria-hidden="true">✈️</p>
-        <h2 class="reveal__title">¡Nos vamos a Copenhague!</h2>
-        <p class="reveal__dates">30 ago – 2 sep · 4 días / 3 noches</p>
+        <h2 class="reveal__title">¡Nos vamos de viaje!</h2>
         <a class="btn" href="#viaje">Ver el viaje ↓</a>
       </div>
     </div>
@@ -77,7 +89,6 @@
     <!-- Banner: mapa de Europa con la animación del vuelo Madrid → ??? -->
     <div class="trip__banner reveal-on-scroll">
       <div class="trip__intro">
-        <p class="section__eyebrow">El regalo</p>
         <!-- El destino se oculta con JS y se desvela al aterrizar el avión.
              La bandera va en SVG: los emoji de banderas no se ven en Windows. -->
         <h2 class="section__title">Un viaje a <span class="trip__dest" id="tripDest"><span
@@ -85,7 +96,6 @@
               role="img" aria-label="bandera de Dinamarca"><rect width="37" height="28"
               fill="#c8102e" /><path d="M0 12h37v4H0z" fill="#fff" /><path d="M12 0h4v28h-4z"
               fill="#fff" /></svg></span></h2>
-        <p class="trip__hint" id="tripHint" aria-live="polite">Sigue al avión por el mapa… ✈️</p>
         <button class="trip__replay" id="tripReplay" type="button" hidden>↻ Repetir el vuelo</button>
       </div>
 
@@ -117,11 +127,9 @@
       <article class="card reveal-on-scroll" style="--accent: var(--nyhavn-blue)">
         <span class="card__icon" aria-hidden="true">✈️</span>
         <h3 class="card__title">Vuelos</h3>
-        <!-- ✏️ EDITAR: datos reales de los vuelos -->
         <dl class="card__list">
-          <dt>Aerolínea</dt><dd>✏️ Aerolínea</dd>
-          <dt>Ida</dt><dd>✏️ 30 ago · 00:00 · MAD → CPH</dd>
-          <dt>Vuelta</dt><dd>✏️ 2 sep · 00:00 · CPH → MAD</dd>
+          <dt>Ida</dt><dd>05:45 - 09:00</dd>
+          <dt>Vuelta</dt><dd> 15:25 - 18:45</dd>
         </dl>
       </article>
 
@@ -131,9 +139,9 @@
         <h3 class="card__title">Alojamiento</h3>
         <!-- ✏️ EDITAR: datos reales del alojamiento -->
         <dl class="card__list">
-          <dt>Hotel</dt><dd>✏️ Nombre del hotel</dd>
-          <dt>Zona</dt><dd>✏️ Barrio / zona</dd>
-          <dt>Noches</dt><dd>3 noches</dd>
+          <dt>Hotel</dt><dd>Scandic Webers</dd>
+          <dt>Ubicación</dt><dd>📍Centro Copenhague</dd>
+          <dt>Desayuno</dt><dd>🥐</dd>
         </dl>
       </article>
     </div>
@@ -144,12 +152,7 @@
   <!-- ============================================================= -->
   <section class="itinerary" id="itinerario">
     <div class="section__head reveal-on-scroll">
-      <p class="section__eyebrow">Día a día</p>
-      <h2 class="section__title">El plan del viaje</h2>
-      <p class="section__intro">
-        Una propuesta para aprovechar Copenhague al máximo. ✏️ Ajusta las
-        actividades a vuestro gusto.
-      </p>
+      <h2 class="section__title">Itinerario</h2>
     </div>
 
     <ol class="timeline">
@@ -158,12 +161,14 @@
         <div class="tl__marker" aria-hidden="true"></div>
         <div class="tl__content">
           <p class="tl__day">Día 1 · Sábado 30 ago</p>
-          <h3 class="tl__title">Llegada y Nyhavn</h3>
-          <img class="tl__img" src="assets/img/nyhavn.jpg" alt="Casas de colores de Nyhavn" loading="lazy" />
+          <h3 class="tl__title">Llegada y Tivoli</h3>
+          <img class="tl__img" src="assets/img/tivoli.jpg" alt="Tivoli" loading="lazy" />
           <ul class="tl__acts">
-            <li>Llegada al aeropuerto y check-in en el hotel.</li>
-            <li>Primer paseo por Nyhavn, el puerto de las casas de colores.</li>
-            <li>Cena tranquila junto al canal. 🍽️</li>
+            <li>Llegada al aeropuerto y dejar las maletas en el hotel (check-in a las 16:00)</li>
+            <li>Jardines de Tivoli</li>
+            <li>Visita a la plaza del Ayuntamiento y la calle comercial Strøget</li>
+            <li>Subida a la Torre Redonda (Rundetårn)</li>
+            
           </ul>
         </div>
       </li>
@@ -173,12 +178,13 @@
         <div class="tl__marker" aria-hidden="true"></div>
         <div class="tl__content">
           <p class="tl__day">Día 2 · Domingo 31 ago</p>
-          <h3 class="tl__title">Tivoli y centro histórico</h3>
-          <img class="tl__img" src="assets/img/tivoli.jpg" alt="Jardines de Tivoli en Copenhague" loading="lazy" />
+          <h3 class="tl__title">Centro histórico y Nyhavn</h3>
+          <img class="tl__img" src="assets/img/nyhavn.jpg" alt="Copenhague" loading="lazy" />
           <ul class="tl__acts">
-            <li>Jardines de Tivoli, uno de los parques más antiguos del mundo. 🎡</li>
-            <li>Plaza del Ayuntamiento y la calle comercial Strøget.</li>
-            <li>Subida a la Torre Redonda (Rundetårn) por sus vistas.</li>
+            <li>Paseito por Nyhavn, el puerto de las casitas de colores</li>
+            <li>Paseo por la fortaleza de Kastellet y barrio de Christiania</li>
+             <li>La Sirenita y el Palacio de Amalienborg</li>
+            <li>Cena tranquila junto al canal 🍽️</li>
           </ul>
         </div>
       </li>
@@ -188,12 +194,10 @@
         <div class="tl__marker" aria-hidden="true"></div>
         <div class="tl__content">
           <p class="tl__day">Día 3 · Lunes 1 sep</p>
-          <h3 class="tl__title">La Sirenita y los canales</h3>
-          <img class="tl__img" src="assets/img/sirenita.jpg" alt="Estatua de La Sirenita en Copenhague" loading="lazy" />
+          <h3 class="tl__title">Malmö</h3>
+          <img class="tl__img" src="assets/img/malmo.jpg" alt="Malmö" loading="lazy" />
           <ul class="tl__acts">
-            <li>La Sirenita y el Palacio de Amalienborg.</li>
-            <li>Paseo por la fortaleza de Kastellet y el barrio de Christiania.</li>
-            <li>Tour en barco por los canales de la ciudad. 🚤</li>
+            <li>Cambiamos de país: Malmö, Suecia</li>
           </ul>
         </div>
       </li>
@@ -206,9 +210,9 @@
           <h3 class="tl__title">Rosenborg y vuelta a casa</h3>
           <img class="tl__img" src="assets/img/rosenborg.jpg" alt="Castillo de Rosenborg en Copenhague" loading="lazy" />
           <ul class="tl__acts">
-            <li>Castillo de Rosenborg y los Jardines del Rey.</li>
-            <li>Mercado gastronómico Torvehallerne y últimas compras. 🛍️</li>
-            <li>Salida hacia el aeropuerto. ✈️</li>
+            <li>Castillo de Rosenborg y los Jardines del Rey</li>
+            <li>Mercado gastronómico Torvehallerne y últimas compras 🛍️</li>
+            <li>Salida hacia el aeropuerto ✈️</li>
           </ul>
         </div>
       </li>
@@ -219,9 +223,7 @@
   <!-- 4) FOOTER                                                     -->
   <!-- ============================================================= -->
   <footer class="footer">
-    <!-- ✏️ EDITAR: mensaje de cierre y firma -->
     <p class="footer__msg">¡Feliz cumpleaños! Nos vemos en Copenhague. 🎉</p>
-    <p class="footer__sign">Hecho con ❤️</p>
   </footer>
 
   <!-- Confeti (local, funciona sin internet). Fuente: canvas-confetti -->
