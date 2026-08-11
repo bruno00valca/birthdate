@@ -49,6 +49,17 @@ h1, h2, h3 { line-height: 1.15; margin: 0; }
 p { margin: 0; }
 img { display: block; max-width: 100%; height: auto; }
 
+/* Texto solo para lectores de pantalla */
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
 .btn {
   display: inline-block;
   margin-top: 1.25rem;
@@ -133,6 +144,83 @@ img { display: block; max-width: 100%; height: auto; }
   font-size: 1.05rem;
 }
 
+/* Mientras el temporizador bloquea el regalo (<body class="is-waiting">) se
+   ve el mensaje de espera; al desbloquearse entra la felicitación. */
+.hero__msg--wait { display: none; }
+.is-waiting .hero__msg--wait { display: block; }
+.is-waiting .hero__msg--party { display: none; }
+/* Si el cambio pasa delante (el reloj llega a cero), la felicitación entra
+   con un saltito en vez de aparecer de golpe */
+.hero__msg--party.is-fresh {
+  animation: popIn .55s cubic-bezier(.34,1.56,.64,1) both;
+}
+
+/* ------------------------ El temporizador ----------------------- */
+/* La cuenta atrás la escribe js/main.js. Si ya pasó la hora (o no hay
+   JavaScript) el recuadro no se muestra. */
+.gate {
+  display: none;
+  max-width: 22rem;
+  margin: 2rem auto 0;
+  padding: 1rem 1.1rem 1.15rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+.gate.is-on { display: block; }
+
+.gate__label {
+  text-transform: uppercase;
+  letter-spacing: .16em;
+  font-size: .7rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+.gate__clock {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  margin-top: .5rem;
+}
+.gate__unit { padding: 0 .15rem; }
+.gate__unit + .gate__unit { border-left: 1px solid var(--line); }
+/* Un color de Nyhavn por unidad */
+.gate__unit:nth-child(1) { --accent: var(--nyhavn-red); }
+.gate__unit:nth-child(2) { --accent: var(--nyhavn-mustard); }
+.gate__unit:nth-child(3) { --accent: var(--nyhavn-green); }
+.gate__unit:nth-child(4) { --accent: var(--nyhavn-blue); }
+.gate__num {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.5rem, 6.5vw, 2.1rem);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+  color: var(--accent);
+}
+.gate__tag {
+  display: block;
+  font-size: .62rem;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--ink-soft);
+}
+.gate__note { margin-top: .7rem; font-size: .85rem; color: var(--ink-soft); }
+
+/* Al llegar a cero, el reloj deja paso al aviso */
+.gate__ready { display: none; }
+.gate.is-done .gate__wait { display: none; }
+.gate.is-done .gate__ready {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  color: var(--nyhavn-blue);
+  animation: popIn .55s cubic-bezier(.34,1.56,.64,1) both;
+}
+
+/* El resto de la página no existe hasta que se abre el regalo */
+.is-sealed .gated { display: none; }
+
 /* --------------------------- El regalo -------------------------- */
 .gift {
   display: inline-block;
@@ -144,6 +232,9 @@ img { display: block; max-width: 100%; height: auto; }
   border-radius: var(--radius);
 }
 .gift:focus-visible { outline: 3px solid var(--nyhavn-blue); outline-offset: 4px; }
+/* Con el temporizador en pantalla, la caja se arrima un poco: así en los
+   móviles pequeños siguen cabiendo las dos cosas */
+.gate.is-on ~ .gift { margin-top: 1.5rem; }
 
 .gift__box {
   position: relative;
@@ -212,6 +303,10 @@ img { display: block; max-width: 100%; height: auto; }
   transform: translateY(-46px) rotate(18deg);
   opacity: 0;
 }
+
+/* Aún no toca: la caja se agita y la tapa hace por abrirse, pero no cede */
+.gift.is-shaking .gift__box { animation: giftShake .6s cubic-bezier(.36,.07,.19,.97) both; }
+.gift.is-shaking .gift__lid { animation: lidTease .6s ease both; }
 
 .gift__hint {
   color: var(--ink-soft);
@@ -538,6 +633,20 @@ html.is-boarding .trip__banner { margin-bottom: 0; }
   25%      { transform: translateY(-6px) rotate(-2deg); }
   75%      { transform: translateY(-6px) rotate(2deg); }
 }
+/* Sacudida de la caja al pulsarla antes de la hora */
+@keyframes giftShake {
+  0%, 100% { transform: translateX(0) rotate(0); }
+  15%      { transform: translateX(-9px) rotate(-4deg); }
+  32%      { transform: translateX(8px) rotate(4deg); }
+  50%      { transform: translateX(-7px) rotate(-3deg); }
+  68%      { transform: translateX(5px) rotate(2deg); }
+  85%      { transform: translateX(-2px) rotate(-1deg); }
+}
+/* La tapa se levanta un pelín y vuelve a su sitio */
+@keyframes lidTease {
+  0%, 100% { transform: translateY(0) rotate(0); }
+  40%      { transform: translateY(-7px) rotate(-3deg); }
+}
 @keyframes popIn {
   from { opacity: 0; transform: scale(.85) translateY(12px); }
   to   { opacity: 1; transform: scale(1) translateY(0); }
@@ -596,6 +705,11 @@ html.is-boarding .trip__banner { margin-bottom: 0; }
   .gift__box { animation: none; }
   .reveal-on-scroll { opacity: 1; transform: none; transition: none; }
   .reveal.is-shown { animation: none; }
+  .gate.is-done .gate__ready { animation: none; }
+  .hero__msg--party.is-fresh { animation: none; }
+  /* Sin sacudida: al pulsar antes de hora solo cambia el mensaje */
+  .gift.is-shaking .gift__box,
+  .gift.is-shaking .gift__lid { animation: none; }
   .trip__dest.is-revealed { animation: none; }
   /* El mapa se muestra con la ruta ya dibujada, sin vuelo */
   .flight.is-landed .map__target .map__ring,

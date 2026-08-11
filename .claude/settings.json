@@ -20,7 +20,10 @@
       "Bash(python3 tools/generar-mapa.py /tmp/ne50.geojson)",
       "Bash(python3 preview4.py)",
       "Bash(node -e \"global.window={};require\\('./js/europa-map.js'\\);require\\('fs'\\).writeFileSync\\('/tmp/map.json',JSON.stringify\\(window.EUROPA_MAP\\)\\)\")",
-      "Bash(node -e ' *)"
+      "Bash(node -e ' *)",
+      "Bash(node -e \"require.resolve\\('jsdom'\\)\")",
+      "Bash(npm ls *)",
+      "Bash(node test-gate.js)"
     ]
   }
 }

@@ -1,5 +1,6 @@
 /* =================================================================
    Lógica de la felicitación
+   - Temporizador: el regalo no se abre hasta la hora señalada
    - Abrir el regalo (+ confeti)
    - Contador de días que faltan para el viaje
    - Vuelo animado Madrid → Copenhague sobre el mapa de Europa
@@ -7,6 +8,11 @@
 ================================================================= */
 (function () {
   "use strict";
+
+  // ✏️ EDITAR: cuándo se desbloquea el regalo (hora local de quien mira).
+  // Hasta ese momento la caja se agita al pulsarla pero no se abre, y el
+  // resto de la página (viaje e itinerario) sigue oculto.
+  var UNLOCK_AT = { y: 2026, m: 8, d: 13, h: 0, min: 0 }; // 13 de agosto de 2026, 00:00
 
   // ✏️ EDITAR: fechas del viaje (año, mes 1-12, día)
   var TRIP_START = { y: 2026, m: 8, d: 30 }; // 30 de agosto de 2026
@@ -37,21 +43,153 @@
   // --------------------------------------------------------------
   // 1) Abrir el regalo
   // --------------------------------------------------------------
+  // Avisa al regalo (`unlock`) tanto si la hora ya había pasado al cargar
+  // la página como si llega estando delante.
+  function initGate(unlock) {
+    var gate = document.getElementById("gate");
+    var days = document.getElementById("gateDays");
+    var hours = document.getElementById("gateHours");
+    var mins = document.getElementById("gateMins");
+    var secs = document.getElementById("gateSecs");
+    var sr = document.getElementById("gateSr");
+    var target = new Date(
+      UNLOCK_AT.y, UNLOCK_AT.m - 1, UNLOCK_AT.d,
+      UNLOCK_AT.h || 0, UNLOCK_AT.min || 0, 0, 0
+    ).getTime();
+    var lastMin = -1;
+    var timer = 0;
+
+    // Si ya ha pasado la hora no hay nada que esperar: fuera el recuadro
+    if (!gate || new Date().getTime() >= target) {
+      if (gate) gate.classList.remove("is-on");
+      unlock(false);
+      return;
+    }
+
+    function tick() {
+      // Se recalcula desde la hora del sistema: así no se desfasa aunque el
+      // navegador congele el temporizador al cambiar de pestaña.
+      var left = target - new Date().getTime();
+      if (left > 0) { paint(left); return; }
+
+      window.clearInterval(timer);
+      paint(0);
+      gate.classList.add("is-done");
+      unlock(true);
+    }
+
+    function paint(left) {
+      var total = Math.floor(left / 1000);
+      var d = Math.floor(total / 86400);
+      var h = Math.floor(total / 3600) % 24;
+      var m = Math.floor(total / 60) % 60;
+
+      write(days, d);
+      write(hours, h);
+      write(mins, m);
+      write(secs, total % 60);
+
+      // El lector de pantalla no necesita oír cada segundo: con los minutos basta
+      if (sr && m !== lastMin) {
+        lastMin = m;
+        sr.textContent = total < 60
+          ? "Queda menos de un minuto para abrir el regalo."
+          : "Faltan " + spellLeft(d, h, m) + " para abrir el regalo.";
+      }
+    }
+
+    tick();
+    timer = window.setInterval(tick, 1000);
+  }
+
+  function write(el, n) {
+    if (el) el.textContent = (n < 10 ? "0" : "") + n;
+  }
+
+  // "2 días, 14 horas y 33 minutos"
+  function spellLeft(d, h, m) {
+    var parts = [];
+    if (d) parts.push(d + (d === 1 ? " día" : " días"));
+    if (h) parts.push(h + (h === 1 ? " hora" : " horas"));
+    if (m) parts.push(m + (m === 1 ? " minuto" : " minutos"));
+    var last = parts.pop();
+    return parts.length ? parts.join(", ") + " y " + last : last;
+  }
+
+  // El hero empieza con el mensaje de espera ("is-waiting" lo pone el HTML) y
+  // pasa a la felicitación en cuanto el regalo se puede abrir. Si el reloj
+  // llega a cero estando delante (`live`), entra con un saltito.
+  function showBirthdayMsg(live) {
+    if (!document.body.classList.contains("is-waiting")) return;
+    document.body.classList.remove("is-waiting");
+    if (!live || prefersReducedMotion) return;
+    var msg = document.querySelector(".hero__msg--party");
+    if (msg) msg.classList.add("is-fresh");
+  }
+
+  // --------------------------------------------------------------
+  // 2) Abrir el regalo
+  // --------------------------------------------------------------
+  var TEASES = [
+    "Todavía no… mira el temporizador ⏳",
+    "Paciencia Sundriii jeje",
+    "Que noo!!",
+    "Aguanta un poquito mas...",
+    "Te quieroo"
+  ];
+
   function initGift() {
     var gift = document.getElementById("gift");
     var reveal = document.getElementById("reveal");
     var hint = document.getElementById("giftHint");
-    if (!gift || !reveal) return;
+    var gate = document.getElementById("gate");
+    if (!gift || !reveal) return { unlock: function () {} };
 
+    var idleHint = hint ? hint.textContent : "";
+    var locked = true;   // lo desbloquea initGate
     var opened = false;
+    var teaseTimer = 0;
+    var nextTease = 0;
 
     gift.addEventListener("click", function () {
+      if (locked) { tease(); return; }
       if (opened) return;
       opened = true;
+      openGift();
+    });
 
+    // Al pulsarlo antes de la hora: la caja se agita y no se abre
+    function tease() {
+      shake();
+      if (!hint) return;
+      hint.textContent = TEASES[nextTease % TEASES.length];
+      nextTease++;
+      window.clearTimeout(teaseTimer);
+      teaseTimer = window.setTimeout(function () {
+        hint.textContent = idleHint;
+      }, 2600);
+    }
+
+    function shake() {
+      if (prefersReducedMotion) return;
+      gift.classList.remove("is-shaking");
+      void gift.offsetWidth;   // reinicia la animación si se pulsa a lo loco
+      gift.classList.add("is-shaking");
+    }
+    gift.addEventListener("animationend", function () {
+      gift.classList.remove("is-shaking");
+    });
+
+    function openGift() {
+      window.clearTimeout(teaseTimer);
+      gift.classList.remove("is-shaking");
       gift.classList.add("is-open");
       gift.setAttribute("aria-expanded", "true");
       if (hint) hint.textContent = "🎉 ¡Sorpresa!";
+      // Ya se ha cumplido su función: el temporizador desaparece
+      if (gate) gate.classList.remove("is-on");
+      // …y a partir de aquí se puede ver el resto de la página
+      document.body.classList.remove("is-sealed");
 
       // Mostrar la sorpresa con un pequeño retardo (mientras se abre la tapa)
       window.setTimeout(function () {
@@ -59,23 +197,36 @@
         reveal.classList.add("is-shown");
         launchConfetti();
       }, prefersReducedMotion ? 0 : 350);
-    });
+    }
+
+    return {
+      unlock: function (live) {
+        locked = false;
+        gift.removeAttribute("aria-disabled");
+        if (!live) return;   // la hora ya había pasado: sin fanfarria
+        idleHint = "¡Ya puedes abrirlo! 🎁";
+        window.clearTimeout(teaseTimer);
+        if (hint) hint.textContent = idleHint;
+        launchConfetti(true);
+      }
+    };
   }
 
   // --------------------------------------------------------------
-  // 2) Confeti (si la librería está disponible y hay movimiento)
+  // 3) Confeti (si la librería está disponible y hay movimiento)
   // --------------------------------------------------------------
-  function launchConfetti() {
+  function launchConfetti(soft) {
     if (typeof window.confetti !== "function" || prefersReducedMotion) return;
 
     // Ráfaga central
     window.confetti({
-      particleCount: 140,
-      spread: 90,
-      startVelocity: 45,
+      particleCount: soft ? 70 : 140,
+      spread: soft ? 70 : 90,
+      startVelocity: soft ? 35 : 45,
       origin: { y: 0.6 },
       colors: PALETTE,
     });
+    if (soft) return;
     // Ráfagas laterales para dar volumen
     window.setTimeout(function () {
       window.confetti({ particleCount: 60, angle: 60, spread: 70, origin: { x: 0 }, colors: PALETTE });
@@ -84,7 +235,7 @@
   }
 
   // --------------------------------------------------------------
-  // 3) Contador de días para el viaje
+  // 4) Contador de días para el viaje
   // --------------------------------------------------------------
   function initCountdown() {
     var el = document.getElementById("countdown");
@@ -109,7 +260,7 @@
   }
 
   // --------------------------------------------------------------
-  // 4) El vuelo: el avión despega de Madrid, da una vuelta por Europa
+  // 5) El vuelo: el avión despega de Madrid, da una vuelta por Europa
   //    dejando una estela discontinua y aterriza en Copenhague.
   // --------------------------------------------------------------
   var SVG_NS = "http://www.w3.org/2000/svg";
@@ -658,7 +809,7 @@
   }
 
   // --------------------------------------------------------------
-  // 5) Animaciones al hacer scroll
+  // 6) Animaciones al hacer scroll
   // --------------------------------------------------------------
   function initScrollReveal() {
     var items = document.querySelectorAll(".reveal-on-scroll");
@@ -687,7 +838,8 @@
 
   // --------------------------------------------------------------
   document.addEventListener("DOMContentLoaded", function () {
-    initGift();
+    // El regalo nace bloqueado; el temporizador es quien le da la llave
+    initGate(initGift().unlock);
     initCountdown();
     initFlight();
     initScrollReveal();

@@ -8,6 +8,13 @@
   <meta name="description" content="Una felicitación de cumpleaños con una sorpresa muy especial." />
   <meta name="theme-color" content="#2c6e9b" />
 
+  <!-- Icono de la pestaña: un regalito con la paleta de Nyhavn.
+       Los tres archivos salen de tools/generar-favicon.py (el .ico es el
+       respaldo para los navegadores que no cargan SVG, como Safari). -->
+  <link rel="icon" href="assets/favicon.ico" sizes="32x32" />
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
+
   <!-- Tipografía (con fallback a fuentes del sistema si no hay internet) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -34,12 +41,21 @@
       .reveal-on-scroll { opacity: 1 !important; transform: none !important; }
       #reveal { display: block !important; }
       #giftHint { display: none; }
+      /* Sin JS no hay temporizador: se ve la página entera desde el principio */
+      .gate { display: none !important; }
+      .gated { display: block !important; }
+      /* …y sin temporizador que bloquee, el mensaje es el de cumpleaños */
+      .is-waiting .hero__msg--wait { display: none !important; }
+      .is-waiting .hero__msg--party { display: block !important; }
       /* Sin JS no hay mapa animado: se ve la foto y sobra la pista */
       #tripHint { display: none; }
     </style>
   </noscript>
 </head>
-<body>
+<!-- "is-sealed":  el viaje y el itinerario no se ven hasta abrir el regalo
+     "is-waiting": mientras el temporizador bloquea el regalo se ve el mensaje
+                   de espera en vez de la felicitación (lo quita js/main.js) -->
+<body class="is-sealed is-waiting">
 
   <!-- ============================================================= -->
   <!-- 1) HERO + REGALO                                              -->
@@ -48,22 +64,60 @@
     <div class="hero__decor" aria-hidden="true"></div>
 
     <div class="hero__inner">
-      <!-- ✏️ EDITAR: pequeño texto superior (opcional) -->
-      <p class="hero__eyebrow">Hoy es un día muy especial</p>
+      <!-- Dos mensajes para el mismo hueco: mientras el temporizador bloquea
+           el regalo se ve el de espera; cuando llega la hora, la felicitación.
+           El cambio lo hace js/main.js quitando "is-waiting" del <body>. -->
 
-      <!-- ✏️ EDITAR: sustituye [NOMBRE] por el nombre o apodo -->
-      <h1 class="hero__title">¡¡Feliz cumpleaños,<br /><span class="hero__name"> SUNDRII</span>!!</h1>
+      <!-- ✏️ EDITAR: mensaje mientras el regalo no se puede abrir -->
+      <div class="hero__msg hero__msg--wait">
+        <p class="hero__eyebrow">Falta poquito</p>
+        <h1 class="hero__title">Este es tu <span class="hero__name">regalo</span> de cumple</h1>
+        <p class="hero__dedication">
+          ...prometido que no hay mas pistas pero... no vas a poder abrir este regalo hasta el día de tu cumplee.
+          Lo podrás abrir a las 00:00 del 13 pero... me gustaría que me esperases para ver tu reacción, yo estaré sin cobertura desde el 12 por la tarde hasta que baje de la montaña.
+          Si aguantas... espera a que te llame pls jeje love u 🩵
+        </p>
+      </div>
 
-      <!-- ✏️ EDITAR: dedicatoria. Escribe aquí tu mensaje personal. -->
-      <p class="hero__dedication">
-        Este año quería regalarte algo distinto, algo para vivir juntos y
-        recordar siempre. Toca el regalo… te espera una sorpresa. 🎁
-      </p>  
+      <!-- ✏️ EDITAR: mensaje de cumpleaños (cuando ya se puede abrir) -->
+      <div class="hero__msg hero__msg--party">
+        <p class="hero__eyebrow">Hoy es un día muy especial</p>
 
-      <!-- Cajita de regalo (se abre al pulsar). Es un botón accesible. -->
+        <h1 class="hero__title">¡¡Feliz cumpleaños,<br /><span class="hero__name"> SUNDRII</span>!!</h1>
+
+        <p class="hero__dedication">
+          Este año es el primero que no te regalo algo material, eso lo
+          sabes... toca por fin abrir tu regalito y descubrir a dónde vamos de
+          viajee. Espero que te guste aunque... algo me dice que ya lo sabes
+          por muchos mareos que te he dado jeje
+        </p>
+      </div>
+
+      <!-- Temporizador: hasta que llegue a cero, el regalo no se abre.
+           La cuenta atrás la escribe js/main.js (constante UNLOCK_AT). -->
+      <div class="gate is-on" id="gate">
+        <div class="gate__wait">
+          <p class="gate__label">El regalo se abre en</p>
+          <!-- Los números son para la vista; el texto de abajo, para lectores
+               de pantalla (que no necesitan oír cada segundo). -->
+          <div class="gate__clock" aria-hidden="true">
+            <span class="gate__unit"><span class="gate__num" id="gateDays">––</span><span class="gate__tag">días</span></span>
+            <span class="gate__unit"><span class="gate__num" id="gateHours">––</span><span class="gate__tag">horas</span></span>
+            <span class="gate__unit"><span class="gate__num" id="gateMins">––</span><span class="gate__tag">min</span></span>
+            <span class="gate__unit"><span class="gate__num" id="gateSecs">––</span><span class="gate__tag">seg</span></span>
+          </div>
+          <!-- ✏️ EDITAR: mensajito mientras se espera -->
+          <p class="gate__note">Un secreto que todavía no puede salir de la caja…</p>
+          <p class="sr-only" id="gateSr" role="timer" aria-live="polite"></p>
+        </div>
+        <p class="gate__ready">¡Ya es la hora! Abre tu regalo 🎁</p>
+      </div>
+
+      <!-- Cajita de regalo (se abre al pulsar, pero no antes de la hora).
+           Es un botón accesible. -->
       <button class="gift" id="gift" type="button"
               aria-expanded="false" aria-controls="reveal"
-              aria-label="Abrir el regalo">
+              aria-disabled="true" aria-label="Abrir el regalo">
         <span class="gift__box" aria-hidden="true">
           <span class="gift__lid"></span>
           <span class="gift__ribbon-v"></span>
@@ -71,7 +125,7 @@
           <span class="gift__bow"></span>
         </span>
       </button>
-      <p class="gift__hint" id="giftHint">Toca el regalo para abrirlo</p>
+      <p class="gift__hint" id="giftHint" aria-live="polite">Toca el regalo para abrirlo</p>
 
       <!-- Sorpresa revelada (oculta hasta abrir el regalo) -->
       <div class="reveal" id="reveal" hidden>
@@ -85,7 +139,7 @@
   <!-- ============================================================= -->
   <!-- 2) TARJETAS DEL VIAJE                                         -->
   <!-- ============================================================= -->
-  <section class="trip" id="viaje">
+  <section class="trip gated" id="viaje">
     <!-- Banner: mapa de Europa con la animación del vuelo Madrid → ??? -->
     <div class="trip__banner reveal-on-scroll">
       <div class="trip__intro">
@@ -150,7 +204,7 @@
   <!-- ============================================================= -->
   <!-- 3) ITINERARIO (timeline vertical)                             -->
   <!-- ============================================================= -->
-  <section class="itinerary" id="itinerario">
+  <section class="itinerary gated" id="itinerario">
     <div class="section__head reveal-on-scroll">
       <h2 class="section__title">Itinerario</h2>
     </div>
@@ -222,7 +276,8 @@
   <!-- ============================================================= -->
   <!-- 4) FOOTER                                                     -->
   <!-- ============================================================= -->
-  <footer class="footer">
+
+  <footer class="footer gated">
     <p class="footer__msg">¡Feliz cumpleaños! Nos vemos en Copenhague. 🎉</p>
   </footer>
 
